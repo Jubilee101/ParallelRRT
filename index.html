@@ -32,7 +32,8 @@ layout: default
     <h2>Challenge</h2>
     <p>1. Difficult to parallelize outer iterative loop because each iteration has strong data dependency with the
         previous iteration because they need to update the kd-tree, insert the node.</p>
-    <p>Hard to parallelize both finding nearby nodes and collision detection at the same time due to the nature of the
+    <p>2. Hard to parallelize both finding nearby nodes and collision detection at the same time due to the nature of
+        the
         algorithm.
     </p>
     <h2>Resources</h2>
@@ -54,6 +55,7 @@ layout: default
         structures such as k-d tree and compare the performance difference with version 1 and speedup with different
         number of cores.
     </p>
+    <h3>Extra Goal</h3>
     <p>
         If things go well and we still have time, we will try to mitigate our algorithm on GPU using cuda and measure
         performance difference. We will also try to make our k-d tree lock free and achieve even better parallelism.
