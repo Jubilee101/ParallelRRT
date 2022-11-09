@@ -1,0 +1,102 @@
+---
+layout: default
+---
+
+<!doctype html>
+<html>
+
+<head>
+    <title>This is the title of the webpage!</title>
+</head>
+
+<body>
+    <h1>Parallel Rapidly Exploring Random Trees</h1>
+    <h2>Team Members</h2>
+    <p>Zinxin Shen, Haoran Zhang</p>
+    <!-- <h2>Checkpoint</h2>
+    <p>Click for our checkpoint report</p>
+    <a href="www.github.com">checkpoint</a>
+    <h2>Final</h2>
+    <p>Click for our final report </p>
+    <a>href="www.github.com">final</a>
+    <h2>Link for github repository</h2>
+    <a>href="www.github.com"</a> -->
+    <h2> Summary </h2>
+    <p>We propose to implement a parallel version of RRT algorithm, compare its performance against the serial version
+        and benchmark it on different number of cores.</p>
+    <h2> Background </h2>
+    <p>RRT is Rapidly Exploring Random Trees algorithm typically used in motion planning in autonomous vehicles
+        therefore it's quite important to speed up the computation time to reduce the decision time of autonomous
+        vehicle. RRT-based algorithms are relatively easy to implement without establishing a detailed map and also they
+        are efficient for high dimensional state space.</p>
+    <h2>Challenge</h2>
+    <p>1. Difficult to parallelize outer iterative loop because each iteration has strong data dependency with the
+        previous iteration because they need to update the kd-tree, insert the node.</p>
+    <p>Hard to parallelize both finding nearby nodes and collision detection at the same time due to the nature of the
+        algorithm.
+    </p>
+    <h2>Resources</h2>
+    <p>We will start by a serial implementation of RRT and we will use the OpenMP to accelerate the RRT and analyze the
+        speedup of the algorithm. And also we found some implementations using Cuda or OpenMP without optimal data
+        structure, we would like to evaluate their performance and compare our performance with theirs.
+    </p>
+    <h2>Goals and Deliverables
+    </h2>
+    <h3>Basic Goal
+    </h3>
+
+    <p>Our basic goal is to have a working version of the RRT algorithm, as well as the benchmark script to measure the
+        performance, then implement a basic parallel version RRT and compare the performance differences.
+    </p>
+    <h3>Ideal Goal</h3>
+    <p>
+        Our ideal goal is to improve our parallel version RRT with better parallel strategy as well as using data
+        structures such as k-d tree and compare the performance difference with version 1 and speedup with different
+        number of cores.
+    </p>
+    <p>
+        If things go well and we still have time, we will try to mitigate our algorithm on GPU using cuda and measure
+        performance difference. We will also try to make our k-d tree lock free and achieve even better parallelism.
+    </p>
+
+    <h2>Platform Choice:
+    </h2>
+    <p>We will use the multi-core CPU (the GHC machines) for our basic implementation. And we will try to benchmark it
+        on the PSC machine as well. Then if we have time, we will try to mitigate it on the GPU.
+    </p>
+    <h2>Timeline</h2>
+    <table>
+        <tr>
+            <td>W1: 11/09-11/15</th>
+            <td>Implement Serial RRT and reproduce the parallelized version of RRT other paper shows</th>
+        </tr>
+        <tr>
+            <td>W2: 11/16-11/22 </td>
+            <td>Devise the Parallelized RRT, analyze the performance, figure out the bottleneck</td>
+        </tr>
+        <tr>
+            <td>W3: 11/23-11/29</td>
+            <td>Improve our Parallelized RRT with k-d tree, compared with cuda version, and initial parallelized RRT
+                version.</td>
+        </tr>
+
+        <tr>
+            <td>11/30</td>
+            <td>Milestone Report</td>
+        </tr>
+
+        <tr>
+            <td>W4: 11/30-12/08 </td>
+            <td>Visualize the path generation and results, finalize the final report.</td>
+        </tr>
+
+        <tr>
+            <td>11/09 </td>
+            <td>Poster Session
+
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
