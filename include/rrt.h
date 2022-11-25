@@ -1,6 +1,7 @@
 # include <utility>
 # include <string>
 # include <vector>
+#include "pgm.h"
 using namespace std;
 
 struct pathTree{
@@ -8,54 +9,59 @@ struct pathTree{
 };
 typedef pair<double,double> Coordinate;
 
+
+class nodeList{    
+public:
+    vector<Coordinate> coordinates;
+    vector<Coordinate> parents;
+    int size=0;
+ //to do 
+    void insert(Coordinate point,Coordinate parentPoint);
+    Coordinate findNearestNode(Coordinate point,int &min_distance);
+    int getSize(){
+        return size;
+    }
+};
+
 class Map
 {
-private:
-	PGM* pgm;
-	double resolution;
 public:
+    PGM* pgm;
+	double resolution;
     Map(double resolution){
         this->resolution=resolution;
     }
     void loadpgm(char* path);
-    void savepgm(char* path);
+    void savepgm(char* path,nodeList*tree);
 	
 };
-class pathNode{
-private:
-    pathNode *children;
-	pathNode *parent;
-    Coordinate coord;
-    double cost;
-public:
-    pathNode();
-};
+// class pathNode{
+// private:
+//     pathNode *children;
+// 	pathNode *parent;
+//     Coordinate coord;
+//     double cost;
+// public:
+//     pathNode();
+// };
 
-struct pathTree
-{
-    pathNode* root;
-	unsigned size;
-};
-class nodeList{
-private:
-    vector<Coordinate> coordinates;
-    vector<Coordinate> parents;
-    int size=0
-public:
- //to do 
-    void insert(Coordinate point,Coordinate parentPoint);
-    Coordinate findNearestNode(Coordinate point);
-};
+// struct pathTree
+// {
+//     pathNode* root;
+// 	unsigned size;
+// };
+
 
 class RRT{
 private:
-    nodeList *tree=nullptr;
     Map *map=nullptr;
     Coordinate startPoint; //initial robot position
     Coordinate endPoint;
 public:
+    nodeList *tree=nullptr;
+
     RRT(Map& map){
-        this->map=map;
+        this->map=&map;
     }
     void setStartPoint(Coordinate startPoint){
         this->startPoint=startPoint;
