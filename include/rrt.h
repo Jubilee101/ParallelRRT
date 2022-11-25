@@ -15,6 +15,9 @@ public:
     vector<Coordinate> coordinates;
     vector<Coordinate> parents;
     int size=0;
+    nodeList(){
+        ;
+    }
  //to do 
     void insert(Coordinate point,Coordinate parentPoint);
     Coordinate findNearestNode(Coordinate point,int &min_distance);
@@ -60,8 +63,9 @@ private:
 public:
     nodeList *tree=nullptr;
 
-    RRT(Map& map){
+    RRT(Map& map,nodeList &nodeList){
         this->map=&map;
+        this->tree=&nodeList;
     }
     void setStartPoint(Coordinate startPoint){
         this->startPoint=startPoint;
