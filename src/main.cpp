@@ -8,6 +8,8 @@
 #define RADIUS 0.2
 
 int main(int argc, char* argv[]) {
+    int seed = time(NULL);
+    srand(seed);
 
     Map map=Map(RESOLUTION);
     map.loadpgm(MAP);
@@ -21,7 +23,7 @@ int main(int argc, char* argv[]) {
 
     rrt.setStartPoint({8,10});
     //try
-    rrt.setEndPoint({9,12});
+    rrt.setEndPoint({15,3});
     // std::cout<<" end set point!"<<std::endl;
 
     std::cout<<" start search!"<<std::endl;

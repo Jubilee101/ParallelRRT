@@ -20,7 +20,7 @@ public:
     }
  //to do 
     void insert(Coordinate point,Coordinate parentPoint);
-    Coordinate findNearestNode(Coordinate point,int &min_distance);
+    Coordinate findNearestNode(Coordinate point,double &min_distance);
     int getSize(){
         return size;
     }
