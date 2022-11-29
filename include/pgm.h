@@ -45,5 +45,6 @@ void destroy_pgm(PGM* pgm);
 void remove_inner_obstacles(PGM* pgm);
 
 void inflate_obstacles(PGM* pgm, double radius);
+void inflate_obstacles_parallel(PGM* pgm, double radius);
 
 #endif

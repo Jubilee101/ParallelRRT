@@ -3,11 +3,18 @@
 #include <cstring>
 #include <time.h>
 #include <fstream>
-#define MAP "./map.pgm"
-// #define IS_OBSTACLE(pgm,i,j) (i<0 || j<0 || i>=pgm->height || j>=pgm->width || pgm->raster[(i)*pgm->width+(j)]<250)
-//[8,10]==>[15,3]
-#define OFFICE "./office.pgm"
+// #define MAP "./office.pgm"
+// #define ENDPOINT Coordinate(34.5,14)
 //[8,10]==>[34.5,14]
+
+#define MAP "./map.pgm"
+#define ENDPOINT Coordinate(15,3)
+//[8,10]==>[15,3]
+
+
+// #define IS_OBSTACLE(pgm,i,j) (i<0 || j<0 || i>=pgm->height || j>=pgm->width || pgm->raster[(i)*pgm->width+(j)]<250)
+// #define OFFICE "./office.pgm"
+
 
 #define RESOLUTION 0.05
 #define RADIUS 0.2
@@ -41,6 +48,8 @@ int main(int argc, char* argv[]) {
 
 	if (argc>3) {
 		threadNum = atoi(argv[3]);
+        // omp_set_num_threads(threadNum);
+
 	}
     Config config=Config(selection,iteration,threadNum);
     int seed = time(NULL);
@@ -57,10 +66,9 @@ int main(int argc, char* argv[]) {
     timer.start();
     inflatetimer.start();
     // std::cout<<"load map successfully!"<<std::endl;
-    inflate_obstacles(map.pgm, RADIUS/RESOLUTION);
+    inflate_obstacles_parallel(map.pgm, RADIUS/RESOLUTION);
     inflatetimer.end();
-    double end_x = 15;
-    double end_y = 3;
+
     // if (is_obstacle(map.pgm,end_x/RESOLUTION,end_y/RESOLUTION)) {
     //     printf("End point lands on obstacle, exit now\n");
     //     return -1;
@@ -74,7 +82,7 @@ int main(int argc, char* argv[]) {
 
     rrt.setStartPoint({8,10});
     //try
-    rrt.setEndPoint({end_x,end_y});
+    rrt.setEndPoint(ENDPOINT);
     // std::cout<<" end set point!"<<std::endl;
 
     // std::cout<<" start search!"<<std::endl;

@@ -82,16 +82,37 @@ void nodeList::insert(Coordinate point,Coordinate parentPoint){
     //     std::cout<<coordinates[i].first<<","<<coordinates[i].second<<")"<<std::endl;
     // }
 }
-Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
-    vector<double> distances(size,std::numeric_limits<double>::max());
-    int min_index=-1;
+struct reduce_struct{
+    double min_distance;
+    int min_index;
+};
+struct reduce_struct reduce_min(struct reduce_struct a, struct reduce_struct b){
+    return a.min_distance<b.min_distance? a:b;
+}
 
+// Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+//     vector<double> distances(size,std::numeric_limits<double>::max());
+//     int min_index=-1;
+
+//     for(int i =0; i<size;i++){
+//         distances[i] = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
+//         if(distances[i]<min_distance){
+//             min_distance=distances[i];
+//             min_index=i;
+//         }
+//     }
+//     return coordinates[min_index];
+//  }
+Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+    #pragma omp declare reduction(MinStruct: struct reduce_struct: omp_out =reduce_min(omp_out,omp_in)) initializer(omp_priv={std::numeric_limits<double>::max(), -1}) 
+    struct reduce_struct ans={std::numeric_limits<double>::max(),-1};
+
+    #pragma omp parallel for reduction(MinStruct:ans)
     for(int i =0; i<size;i++){
-        distances[i] = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
-        if(distances[i]<min_distance){
-            min_distance=distances[i];
-            min_index=i;
-        }
+        double current_distance = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
+        struct reduce_struct new_val={current_distance,i};
+        ans=reduce_min(ans,new_val);
     }
-    return coordinates[min_index];
+    min_distance=ans.min_distance;
+    return coordinates[ans.min_index];
  }

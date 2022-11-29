@@ -10,9 +10,10 @@ BIN=./build/rrt
 
 ALG="1 2"
 
-CPUS="1 2 4"
+CPUS="1 2 4 8"
 
 echo CPUs "," ALG ","ITERATION"," TIME > $OUT
+echo Phase "," CPUs "," ALG ","ITERATION"," TIME > timer.csv
 
 for c in $CPUS
 do

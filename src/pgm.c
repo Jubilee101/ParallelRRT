@@ -179,6 +179,33 @@ void inflate_obstacles(PGM* pgm, double radius)
 	pgm->raster = raster;
 }
 
+void inflate_obstacles_parallel(PGM* pgm, double radius)
+{
+	int o = ceil(radius);
+ 	unsigned char* raster = (unsigned char*)malloc(pgm->width * pgm->height);
+ 	memset(raster,255,pgm->width * pgm->height);
+	#pragma omp parallel for schedule(dynamic, 16)
+	for (int index=0;index<pgm->height*pgm->width;index++) {
+		int i= index/pgm->width;
+		int j= index%pgm->width;
+		if (!IS_OBSTACLE(pgm,i,j)) {
+			continue;
+		}
+		for (int a = i-o; a<= i+o; a++) {
+			for (int b= j-o; b<=j+o; b++) {
+				if (a>=0 && a<pgm->height && b>=0 && b< pgm->width) {
+					double d = sqrt( (a-i)*(a-i) + (b-j)*(b-j));
+					if (d<=radius) {
+						raster[a*pgm->width+b] = 0;
+					}
+				}
+			}
+		} 
+	}
+	free(pgm->raster);
+	pgm->raster = raster;
+}
+
 void remove_inner_obstacles(PGM* pgm)
 {
 	unsigned char* raster = (unsigned char*)malloc(pgm->width * pgm->height);
