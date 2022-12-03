@@ -3,6 +3,7 @@
 # include <vector>
 #include <iostream>
 #include <fstream>
+#include <omp.h>
 
 #include <time.h>
 
@@ -61,7 +62,7 @@ public:
     }
     void writeTofile(string phase,Config config){
         std::ofstream myfile;
-        myfile.open ("timer.csv",ios::app);
+        myfile.open (phase+".csv",ios::app);
         myfile<<phase<<","<<config.threadNum<<","<<config.selection<<","<<config.iteration<<","<<total_duration<<std::endl;
         myfile.close();
     }
@@ -95,22 +96,6 @@ public:
     void savepgm(char* path,nodeList*tree);
 	
 };
-// class pathNode{
-// private:
-//     pathNode *children;
-// 	pathNode *parent;
-//     Coordinate coord;
-//     double cost;
-// public:
-//     pathNode();
-// };
-
-// struct pathTree
-// {
-//     pathNode* root;
-// 	unsigned size;
-// };
-
 
 class RRT{
 private:

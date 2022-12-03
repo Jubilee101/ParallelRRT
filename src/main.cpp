@@ -3,12 +3,12 @@
 #include <cstring>
 #include <time.h>
 #include <fstream>
-// #define MAP "./office.pgm"
-// #define ENDPOINT Coordinate(34.5,14)
+#define MAP "./office.pgm"
+#define ENDPOINT Coordinate(34.5,14)
 //[8,10]==>[34.5,14]
 
-#define MAP "./map.pgm"
-#define ENDPOINT Coordinate(15,3)
+// #define MAP "./map.pgm"
+// #define ENDPOINT Coordinate(15,3)
 //[8,10]==>[15,3]
 
 
@@ -52,7 +52,8 @@ int main(int argc, char* argv[]) {
 
 	}
     Config config=Config(selection,iteration,threadNum);
-    int seed = time(NULL);
+    // int seed = time(NULL);
+    int seed = 5000;
     srand(seed);
 
     Map map=Map(RESOLUTION);
@@ -74,7 +75,7 @@ int main(int argc, char* argv[]) {
     //     return -1;
     // }
     inflatetimer.print_total_duration("inflate obstacles");
-    inflatetimer.writeTofile("inflate obstacles",config);
+    inflatetimer.writeTofile("inflate_obstacles",config);
     // std::cout<<"inflate map successfully!"<<std::endl;
     nodeList tree=nodeList();
     RRT rrt=RRT(map,tree);
@@ -98,7 +99,7 @@ int main(int argc, char* argv[]) {
     // std::cout<<" end rrt start search!"<<std::endl;
     std::ofstream myfile;
     myfile.open ("summary.csv",ios::app);
-    myfile<<threadNum<<","<<selection<<","<<iteration<<","<<timer.get_duration()<<std::endl;
+    myfile<<threadNum<<","<<selection<<","<<iteration<<","<<timer.get_duration()<<tree.getSize()<<std::endl;
     myfile.close();
 
     // std::cout<<"start creating the tree!"<<std::endl;

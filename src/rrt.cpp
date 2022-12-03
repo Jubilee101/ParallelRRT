@@ -66,8 +66,8 @@ void RRT::start_search(Config config){
     }
     nearesttimer.print_total_duration("find nearest");
     detecttimmer.print_total_duration("detect obstacles");
-    nearesttimer.writeTofile("find nearest",config);
-    detecttimmer.writeTofile("detect obstacles",config);
+    nearesttimer.writeTofile("find_nearest",config);
+    detecttimmer.writeTofile("detect_obstacles",config);
 }
 
 // pathNode::pathNode() {
@@ -103,16 +103,68 @@ struct reduce_struct reduce_min(struct reduce_struct a, struct reduce_struct b){
 //     }
 //     return coordinates[min_index];
 //  }
-Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
-    #pragma omp declare reduction(MinStruct: struct reduce_struct: omp_out =reduce_min(omp_out,omp_in)) initializer(omp_priv={std::numeric_limits<double>::max(), -1}) 
-    struct reduce_struct ans={std::numeric_limits<double>::max(),-1};
+// Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+//     #pragma omp declare reduction(MinStruct: struct reduce_struct: omp_out =reduce_min(omp_out,omp_in)) initializer(omp_priv={std::numeric_limits<double>::max(), -1}) 
+//     struct reduce_struct ans={std::numeric_limits<double>::max(),-1};
+//     #pragma omp parallel for schedule(static, 1024) reduction(MinStruct:ans)
+//     for(int i =0; i<size;i++){
+//         double first = coordinates[i].first;
+//         double second=coordinates[i].second;
+//         double current_distance = sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
+//         struct reduce_struct new_val={current_distance,i};
+//         ans=reduce_min(ans,new_val);
+//     }
+//     min_distance=ans.min_distance;
+//     return coordinates[ans.min_index];
+//  }
+ Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+    struct reduce_struct ans = {std::numeric_limits<double>::max(),-1};
+    #pragma omp parallel
+    {
+        struct reduce_struct local_red = {std::numeric_limits<double>::max(),-1};
+        #pragma omp for nowait
+        for(int i = 0; i < size; ++i) {
+                double first = coordinates[i].first;
+                double second=coordinates[i].second;
+                double current_distance = sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
+                local_red=reduce_min(local_red,{current_distance,i});
+        }
 
-    #pragma omp parallel for reduction(MinStruct:ans)
-    for(int i =0; i<size;i++){
-        double current_distance = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
-        struct reduce_struct new_val={current_distance,i};
-        ans=reduce_min(ans,new_val);
+        #pragma omp critical
+        {
+            ans=reduce_min(ans,local_red);  
+        }    
     }
     min_distance=ans.min_distance;
     return coordinates[ans.min_index];
  }
+// struct XYD
+// {
+// 	double x;
+// 	double y;
+// 	double d;
+// };
+// XYD xyd_min2(XYD a, XYD b)
+// {
+// 	return a.d < b.d ? a : b;
+// }
+
+// #pragma omp declare reduction(xyd_min : XYD : omp_out=xyd_min2(omp_out,omp_in))\
+// 		initializer(omp_priv={0,0,INF})
+//  Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+//     vector<double> distances(size,0);
+//     #pragma omp parallel for
+//     for(int i =0; i<size;i++){
+//         double first = coordinates[i].first;
+//         double second=coordinates[i].second;
+//         distances[i]= sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
+//     }
+//     XYD value = {0,0,INF};
+//     #pragma omp parallel for reduction(xyd_min:value)
+//     for (unsigned i=0;i<size;i++) {
+//         XYD new_value = {coordinates[i].first,coordinates[i].second,distances[i]};
+//         value = xyd_min2(value,new_value);
+//     }
+//     min_distance=value.d;
+//     return {value.x,value.y};
+//  }
