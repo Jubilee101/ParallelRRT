@@ -275,7 +275,7 @@ void draw_line(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char color)
 // 		x += ix;
 // 		y += iy;
 // 		d2 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
-// 	}while (d2<d1 && !obstacle);
+// 	}while (d2<d1);
 	
 // 	return obstacle;
 // }
@@ -293,27 +293,21 @@ int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char thre
 		
 	int d = (int)sqrt(d1);
 	// printf("d:%d\n",d);
-	
 	double ix = (gx-x0)/d;
 	double iy = (gy-y0)/d;
-	 #pragma omp parallel
-    {
-		int local_obstacle = 0;
-		#pragma omp for nowait 
-		for(int i=0;i<=d;i++){
-			double x=x0+i*ix;
-			double y=y0+i*iy;
-			if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
-				local_obstacle = 1;
-				// return obstacle;
-			}
+	#pragma omp for
+	for(int i=0;i<=d;i++){
+		if (obstacle == 1) {
+			continue;
 		}
-		#pragma omp critical
-		{
-			obstacle+=local_obstacle;
+		double x=x0+i*ix;
+		double y=y0+i*iy;
+		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
+			obstacle = 1;
+			// return obstacle;
+			obstacle=1;
 		}
-		
-	}
+	}		
 	return obstacle;
 }
 

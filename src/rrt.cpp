@@ -138,6 +138,29 @@ struct reduce_struct reduce_min(struct reduce_struct a, struct reduce_struct b){
     min_distance=ans.min_distance;
     return coordinates[ans.min_index];
  }
+//  Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+//     struct reduce_struct ans = {std::numeric_limits<double>::max(),-1};
+//     // struct reduce_struct local_red = {std::numeric_limits<double>::max(),-1};
+//     struct reduce_struct reds[8];
+//     #pragma omp for
+//     for (int i = 0; i < 8; i++) {
+//         reds[i] = {std::numeric_limits<double>::max(),-1};
+//     }
+//     #pragma omp for
+//     for(int i = 0; i < size; ++i) {
+//             double first = coordinates[i].first;
+//             double second=coordinates[i].second;
+//             double current_distance = sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
+//             int id = omp_get_thread_num();
+//             reds[id]=reduce_min(reds[id],{current_distance,i});
+//     }
+//     #pragma omp for
+//     for (int i = 0; i < 8; i++) {
+//         ans = reduce_min(ans, reds[i]);
+//     }
+//     min_distance=ans.min_distance;
+//     return coordinates[ans.min_index];
+//  }
 // struct XYD
 // {
 // 	double x;

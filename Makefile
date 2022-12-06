@@ -7,7 +7,7 @@ OBJ = main.o rrt.o pgm.o
       
 BIN = rrt
 
-CFlags=-c -O3 -Wall -fopenmp 
+CFlags=-c -O2 -Wall -fopenmp 
 LDFlags= -lm -fopenmp 
 CC=g++
 RM=rm
