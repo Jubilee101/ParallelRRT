@@ -3,9 +3,9 @@
 #include <cstring>
 #include <time.h>
 #include <fstream>
-#define MAP "./office.pgm"
-#define ENDPOINT Coordinate(34.5,14)
-//[8,10]==>[34.5,14]
+// #define MAP "./office.pgm"
+// #define ENDPOINT Coordinate(34.5,14)
+// //[8,10]==>[34.5,14]
 
 // #define MAP "./map.pgm"
 // #define ENDPOINT Coordinate(15,3)
@@ -15,7 +15,7 @@
 // #define IS_OBSTACLE(pgm,i,j) (i<0 || j<0 || i>=pgm->height || j>=pgm->width || pgm->raster[(i)*pgm->width+(j)]<250)
 // #define OFFICE "./office.pgm"
 
-
+std::vector<MapChoice> choices={MapChoice("./map.pgm",{8,10},Coordinate(15,3),"map"),MapChoice("./office.pgm",{8,10},Coordinate(34.5,14),"office"),MapChoice("./labyrinth.pgm",{39.5,12.5},Coordinate(34.5,11.5),"labyrinth")};
 #define RESOLUTION 0.05
 #define RADIUS 0.2
 bool is_obstacle(PGM* pgm, int i, int j) {
@@ -24,24 +24,21 @@ bool is_obstacle(PGM* pgm, int i, int j) {
     return i<0 || j<0 || i>=pgm->height || j>=pgm->width || pgm->raster[(i)*pgm->width+(j)]<250;
 }
 int main(int argc, char* argv[]) {
-    int selection=0;
     int iteration=0;
     int threadNum=0;;
-
+    int mapSelection=0;
     if (argc==1) {
-		printf("\nFormat: %s [a] [r] [c]\n",argv[0]);
-		printf("\n[a] is the algorithm index\n");
-		printf("\t1 = serialized RRT\n");
-        printf("\t2 = parallel RRT\n");
+		printf("\nFormat: %s [map] [a] [r] [c]\n",argv[0]);
+        printf("\n[map] is the map index\n");
+		printf("\t1 = map\n");
+        printf("\t2 = office\n");
 		printf("\n[r] iteration(only used in bash)\n");
         printf("\n[c] is the threads number (only used in bash)\n");
 		return 0;
 	}
-		
-	if (argc>1) {
-		selection = atoi(argv[1])-1;	
-	}
-	
+	if(argc>1){
+        mapSelection= atoi(argv[1])-1;
+    }
 	if (argc>2) {
 	    iteration = atoi(argv[2]);
 	}
@@ -49,25 +46,27 @@ int main(int argc, char* argv[]) {
 	if (argc>3) {
 		threadNum = atoi(argv[3]);
         // omp_set_num_threads(threadNum);
-
 	}
-    Config config=Config(selection,iteration,threadNum);
-    // int seed = time(NULL);
-    int seed = 5000;
+    MapChoice mapConfig=choices[mapSelection];
+    Config config=Config(iteration,threadNum,mapConfig);
+    int seed = time(NULL);
+    // int seed = 5000;
     srand(seed);
 
     Map map=Map(RESOLUTION);
-
-    map.loadpgm(MAP);
-    PGM *pgm=load_pgm(MAP);
-
+    char* mapName = const_cast<char*>(mapConfig.map.c_str());
+    map.loadpgm(mapName);
+    PGM *pgm=load_pgm(mapName);
+    // fprintf("width:%d,height%d,\n",pgm->width,pgm->height);
     Timer timer=Timer();
     Timer inflatetimer=Timer();
 
     timer.start();
     inflatetimer.start();
     // std::cout<<"load map successfully!"<<std::endl;
-    inflate_obstacles_parallel(map.pgm, RADIUS/RESOLUTION);
+    // inflate_obstacles_parallel(map.pgm, RADIUS/RESOLUTION);
+    inflate_obstacles(map.pgm, RADIUS/RESOLUTION);
+
     inflatetimer.end();
 
     // if (is_obstacle(map.pgm,end_x/RESOLUTION,end_y/RESOLUTION)) {
@@ -76,17 +75,14 @@ int main(int argc, char* argv[]) {
     // }
     inflatetimer.print_total_duration("inflate obstacles");
     inflatetimer.writeTofile("inflate_obstacles",config);
-    // std::cout<<"inflate map successfully!"<<std::endl;
+
     nodeList tree=nodeList();
     RRT rrt=RRT(map,tree);
-    // std::cout<<" start rrt successfully!"<<std::endl;
 
-    rrt.setStartPoint({8,10});
-    //try
-    rrt.setEndPoint(ENDPOINT);
-    // std::cout<<" end set point!"<<std::endl;
 
-    // std::cout<<" start search!"<<std::endl;
+    rrt.setStartPoint(mapConfig.start_point);
+
+    rrt.setEndPoint(mapConfig.end_point);
 
     rrt.start_search(config);
     // clock_gettime(CLOCK_MONOTONIC, &cur_timer);
@@ -99,7 +95,7 @@ int main(int argc, char* argv[]) {
     // std::cout<<" end rrt start search!"<<std::endl;
     std::ofstream myfile;
     myfile.open ("summary.csv",ios::app);
-    myfile<<threadNum<<","<<selection<<","<<iteration<<","<<timer.get_duration()<<tree.getSize()<<std::endl;
+    myfile<<threadNum<<","<<iteration<<","<<timer.get_duration()<<tree.getSize()<<std::endl;
     myfile.close();
 
     // std::cout<<"start creating the tree!"<<std::endl;
@@ -114,7 +110,8 @@ int main(int argc, char* argv[]) {
         draw_line(pgm,currX,currY,parentX,parentY,0);
     }
     if(pgm!=nullptr){
-        strcpy(pgm->file,"ouput.pgm");
+        string filename="./pic/ouput_"+mapConfig.name+".pgm";
+        strcpy(pgm->file,filename.c_str());
         // std::cout<<" start saving!"<<std::endl;
 
         save_pgm(pgm);

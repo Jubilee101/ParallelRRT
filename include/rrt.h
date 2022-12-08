@@ -10,19 +10,40 @@
 #include "pgm.h"
 using namespace std;
 
-struct pathTree{
+
+typedef pair<double,double> Coordinate;
+class MapChoice{
+    public:
+    string map;
+    Coordinate start_point;
+    Coordinate end_point;
+    string name;
+    MapChoice(){
+        map="";
+        start_point={0,0};
+        end_point={0,0};
+        name="";
+    }
+    MapChoice(string m,Coordinate s,Coordinate c,string n){
+        map=m;
+        start_point=s;
+        end_point=c;
+        name=n;
+    }
     
 };
-typedef pair<double,double> Coordinate;
+
 class Config{
     public:
-    int selection=0;
+    // int selection=0;
     int iteration=0;
     int threadNum=0;;
-    Config(int s,int i,int t){
-        selection=s;
+    MapChoice mapChoice;
+    Config(int i,int t,MapChoice mp){
+        // selection=s;
         iteration=i;
         threadNum=t;
+        mapChoice=mp;
     }
 };
 class Timer {
@@ -31,6 +52,7 @@ private:
     struct timespec end_timer;
     uint64_t pre_duration;
     uint64_t total_duration;
+    int call_count;
     uint64_t getTime(struct timespec* time) {
         return (uint64_t)time->tv_sec * 1000000 + time->tv_nsec / 1000;
     }
@@ -40,9 +62,11 @@ public:
         end_timer = {0, 0};
         pre_duration = 0;
         total_duration = 0;
+        call_count=0;
     }
     void start() {
         clock_gettime(CLOCK_MONOTONIC, &start_timer);
+        call_count+=1;
     }
     void end() {
         clock_gettime(CLOCK_MONOTONIC, &end_timer);
@@ -62,8 +86,10 @@ public:
     }
     void writeTofile(string phase,Config config){
         std::ofstream myfile;
-        myfile.open (phase+".csv",ios::app);
-        myfile<<phase<<","<<config.threadNum<<","<<config.selection<<","<<config.iteration<<","<<total_duration<<std::endl;
+        myfile.open ("./exp_results/"+phase+"_"+config.mapChoice.name+".csv",ios::app);
+        // myfile<<"Phase, CPUs, ALG, ITERATION, TIME, CALLCOUNT, SINGLETIME"<<std::endl;
+
+        myfile<<phase<<","<<config.threadNum<<","<<config.iteration<<","<<total_duration<<","<<call_count<<","<<(double)total_duration/(double)call_count<<std::endl;
         myfile.close();
     }
 };
