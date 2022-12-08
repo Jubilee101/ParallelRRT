@@ -251,54 +251,54 @@ void draw_line(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char color)
 	
 }
 
-int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
-{
-	int obstacle = 0;
-	double x = x0;
-	double y = y0;
-	
-	double gx = x1;
-	double gy = y1;
-
-	double d1 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
-	double d2 = d1;
-		
-	double d = sqrt(d1);
-	
-	double ix = (gx-x)/d;
-	double iy = (gy-y)/d;
-	
-	do {
-		d1 = d2;
-		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
-			obstacle = 1;
-		}
-		x += ix;
-		y += iy;
-		d2 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
-	}while (d2<d1);
-	
-	return obstacle;
-}
 // int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
 // {
 // 	int obstacle = 0;
+// 	double x = x0;
+// 	double y = y0;
+	
+// 	double gx = x1;
+// 	double gy = y1;
+
+// 	double d1 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
+// 	double d2 = d1;
 		
-// 	int d = (int)sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
-// 	double ix = ((double)x1-x0)/d;
-// 	double iy = ((double)y1-y0)/d;
-// 	#pragma omp for nowait
-// 	for(int i=0;i<=d;i++){
-// 		if (obstacle == 1) {
-// 			continue;
-// 		}
-// 		double x=x0+i*ix;
-// 		double y=y0+i*iy;
+// 	double d = sqrt(d1);
+	
+// 	double ix = (gx-x)/d;
+// 	double iy = (gy-y)/d;
+	
+// 	do {
+// 		d1 = d2;
 // 		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
 // 			obstacle = 1;
 // 		}
-// 	}	
+// 		x += ix;
+// 		y += iy;
+// 		d2 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
+// 	}while (d2<d1);
+	
 // 	return obstacle;
 // }
+int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
+{
+	int obstacle = 0;
+		
+	int d = (int)sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+	double ix = ((double)x1-x0)/d;
+	double iy = ((double)y1-y0)/d;
+	#pragma omp for nowait
+	for(int i=0;i<=d;i++){
+		if (obstacle == 1) {
+			continue;
+		}
+		double x=x0+i*ix;
+		double y=y0+i*iy;
+		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
+			obstacle = 1;
+		}
+	}	
+	return obstacle;
+}
 
 

@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
 	}
     MapChoice mapConfig=choices[mapSelection];
     Config config=Config(iteration,threadNum,mapConfig);
-    int seed = time(NULL);
-    // int seed = 5000;
+    // int seed = time(NULL);
+    int seed = 5000;
     srand(seed);
 
     Map map=Map(RESOLUTION);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     inflatetimer.start();
     // std::cout<<"load map successfully!"<<std::endl;
     // inflate_obstacles_parallel(map.pgm, RADIUS/RESOLUTION);
-    inflate_obstacles(map.pgm, RADIUS/RESOLUTION);
+    inflate_obstacles_parallel(map.pgm, RADIUS/RESOLUTION);
 
     inflatetimer.end();
 

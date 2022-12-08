@@ -86,19 +86,19 @@ struct reduce_struct reduce_min(struct reduce_struct a, struct reduce_struct b){
     return a.min_distance<b.min_distance? a:b;
 }
 
-Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
-    vector<double> distances(size,std::numeric_limits<double>::max());
-    int min_index=-1;
+// Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+//     vector<double> distances(size,std::numeric_limits<double>::max());
+//     int min_index=-1;
 
-    for(int i =0; i<size;i++){
-        distances[i] = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
-        if(distances[i]<min_distance){
-            min_distance=distances[i];
-            min_index=i;
-        }
-    }
-    return coordinates[min_index];
- }
+//     for(int i =0; i<size;i++){
+//         distances[i] = sqrt((coordinates[i].first - point.first) * (coordinates[i].first - point.first) + (coordinates[i].second - point.second) * (coordinates[i].second - point.second));
+//         if(distances[i]<min_distance){
+//             min_distance=distances[i];
+//             min_index=i;
+//         }
+//     }
+//     return coordinates[min_index];
+//  }
 // Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
 //     #pragma omp declare reduction(MinStruct: struct reduce_struct: omp_out =reduce_min(omp_out,omp_in)) initializer(omp_priv={std::numeric_limits<double>::max(), -1}) 
 //     struct reduce_struct ans={std::numeric_limits<double>::max(),-1};
@@ -113,27 +113,27 @@ Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
 //     min_distance=ans.min_distance;
 //     return coordinates[ans.min_index];
 //  }
-//  Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
-//     struct reduce_struct ans = {std::numeric_limits<double>::max(),-1};
-//     #pragma omp parallel
-//     {
-//         struct reduce_struct local_red = {std::numeric_limits<double>::max(),-1};
-//         #pragma omp for nowait
-//         for(int i = 0; i < size; ++i) {
-//                 double first = coordinates[i].first;
-//                 double second=coordinates[i].second;
-//                 double current_distance = sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
-//                 local_red=reduce_min(local_red,{current_distance,i});
-//         }
+ Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
+    struct reduce_struct ans = {std::numeric_limits<double>::max(),-1};
+    #pragma omp parallel
+    {
+        struct reduce_struct local_red = {std::numeric_limits<double>::max(),-1};
+        #pragma omp for nowait
+        for(int i = 0; i < size; ++i) {
+                double first = coordinates[i].first;
+                double second=coordinates[i].second;
+                double current_distance = sqrt((first - point.first) * (first - point.first) + (second - point.second) * (second - point.second));
+                local_red=reduce_min(local_red,{current_distance,i});
+        }
 
-//         #pragma omp critical
-//         {
-//             ans=reduce_min(ans,local_red);  
-//         }    
-//     }
-//     min_distance=ans.min_distance;
-//     return coordinates[ans.min_index];
-//  }
+        #pragma omp critical
+        {
+            ans=reduce_min(ans,local_red);  
+        }    
+    }
+    min_distance=ans.min_distance;
+    return coordinates[ans.min_index];
+ }
 //  Coordinate nodeList::findNearestNode(Coordinate point,double &min_distance){
 //     struct reduce_struct ans = {std::numeric_limits<double>::max(),-1};
 //     // struct reduce_struct local_red = {std::numeric_limits<double>::max(),-1};
