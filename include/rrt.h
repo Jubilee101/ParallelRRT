@@ -86,7 +86,7 @@ public:
     }
     void writeTofile(string phase,Config config){
         std::ofstream myfile;
-        myfile.open ("./exp_results/"+phase+"_"+config.mapChoice.name+".csv",ios::app);
+        myfile.open ("./exp_results/_s"+phase+"_"+config.mapChoice.name+".csv",ios::app);
         // myfile<<"Phase, CPUs, ALG, ITERATION, TIME, CALLCOUNT, SINGLETIME"<<std::endl;
 
         myfile<<phase<<","<<config.threadNum<<","<<config.iteration<<","<<total_duration<<","<<call_count<<","<<(double)total_duration/(double)call_count<<std::endl;
