@@ -1,16 +1,8 @@
-/*this file is from repo: https://github.com/Ignacio-Perez/openmprrt/blob/master/src/pgm.c for pgm read and write */
+/*this file is developed from repo: https://github.com/Ignacio-Perez/openmprrt/blob/master/src/pgm.c for pgm read and write */
 /*  OPENMP-RRT
     Copyright (C) 2019  Ignacio Perez-Hurtado
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
+	Edit by Zixin Shen and Haoran Zhang
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,6 +181,7 @@ void inflate_obstacles_parallel(PGM* pgm, double radius)
 		int i= index/pgm->width;
 		int j= index%pgm->width;
 		if (!IS_OBSTACLE(pgm,i,j)) {
+			// printf("no obstacles here:(%d,%d)",i,j);
 			continue;
 		}
 		for (int a = i-o; a<= i+o; a++) {
@@ -250,33 +243,90 @@ void draw_line(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char color)
 	
 }
 
+// int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
+// {
+// 	int obstacle = 0;
+// 	double x = x0;
+// 	double y = y0;
+	
+// 	double gx = x1;
+// 	double gy = y1;
+
+// 	double d1 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
+// 	double d2 = d1;
+		
+// 	double d = sqrt(d1);
+	
+// 	double ix = (gx-x)/d;
+// 	double iy = (gy-y)/d;
+	
+// 	do {
+// 		d1 = d2;
+// 		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
+// 			obstacle = 1;
+// 		}
+// 		x += ix;
+// 		y += iy;
+// 		d2 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
+// 	}while (d2<d1);
+	
+// 	return obstacle;
+// }
 int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
 {
 	int obstacle = 0;
-	double x = x0;
-	double y = y0;
-	
-	double gx = x1;
-	double gy = y1;
-
-	double d1 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
-	double d2 = d1;
 		
-	double d = sqrt(d1);
-	
-	double ix = (gx-x)/d;
-	double iy = (gy-y)/d;
-	
-	do {
-		d1 = d2;
+	int d = (int)sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+	double ix = ((double)x1-x0)/d;
+	double iy = ((double)y1-y0)/d;
+	#pragma omp for nowait
+	for(int i=0;i<=d;i++){
+		if (obstacle == 1) {
+			continue;
+		}
+		double x=x0+i*ix;
+		double y=y0+i*iy;
 		if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
 			obstacle = 1;
 		}
-		x += ix;
-		y += iy;
-		d2 = (gx-x)*(gx-x)+(gy-y)*(gy-y);
-	}while (d2<d1 && !obstacle);
-	
+	}	
 	return obstacle;
 }
+// int detect_obstacle(PGM* pgm, int x0, int y0, int x1, int y1, unsigned char threshold)
+// {
+// 	int obstacle = 0;
+// 	// double x = x0;
+// 	// double y = y0;
+	
+// 	double gx = x1;
+// 	double gy = y1;
+
+// 	double d1 = (gx-x0)*(gx-x0)+(gy-y0)*(gy-y0);
+// 	// double d2 = d1;
+		
+// 	int d = (int)sqrt(d1);
+// 	// printf("d:%d\n",d);
+	
+// 	double ix = (gx-x0)/d;
+// 	double iy = (gy-y0)/d;
+// 	 #pragma omp parallel
+//     {
+// 		int local_obstacle = 0;
+// 		#pragma omp for nowait 
+// 		for(int i=0;i<=d;i++){
+// 			double x=x0+i*ix;
+// 			double y=y0+i*iy;
+// 			if (pgm->raster[(int)y * pgm->width + (int)x] < threshold) {
+// 				local_obstacle = 1;
+// 				// return obstacle;
+// 			}
+// 		}
+// 		#pragma omp critical
+// 		{
+// 			obstacle+=local_obstacle;
+// 		}
+		
+// 	}
+// 	return obstacle;
+// }
 
