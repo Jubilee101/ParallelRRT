@@ -12,6 +12,8 @@ BIN=./build/rrt
 CPUS="1 2 4 8"
 
 MAP_SELECTION=$1
+
+mkdir pic
 mkdir exp_results
 
 # echo CPUs "," ALG ","ITERATION"," TIME"," NODE SIZE >$OUT
